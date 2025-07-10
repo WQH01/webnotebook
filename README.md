@@ -24,7 +24,7 @@ npm install
 npm start
 ```
 - 默认监听 http://localhost:3001
-- 数据库配置见 `backend/src/utils/db.js`，需提前准备好 MySQL 数据库。
+- 数据库配置见 `backend/.env`，需提前准备好 MySQL 数据库。
 
 ### 2. Web 管理端（web-admin）
 ```bash
