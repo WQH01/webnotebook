@@ -3,63 +3,216 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>笔记详情</title>
     <style>
+        :root {
+            --primary-color: #4a90e2;
+            --text-color: #2c3e50;
+            --secondary-text: #7f8c8d;
+            --border-radius: 12px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background: #f8f9fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .container {
-            max-width: 500px;
-            margin: 40px auto;
+            width: 100%;
+            max-width: 680px;
+            margin: 20px auto;
             background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px #0002;
-            padding: 32px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #eee;
         }
 
         .note-content {
-            background: #f5f5f5;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 16px;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            border: 1px solid #e9ecef;
+            font-size: 1rem;
+            line-height: 1.8;
+            transition: background-color var(--transition-speed);
+        }
+
+        .note-content:hover {
+            background: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .note-meta {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .note-label {
-            color: #888;
-            font-size: 14px;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .note-label a {
+            color: var(--primary-color);
+            text-decoration: none;
+            word-break: break-all;
+            transition: color var(--transition-speed);
+        }
+
+        .note-label a:hover {
+            color: #2171c7;
+            text-decoration: underline;
         }
 
         .note-color {
-            font-weight: bold;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .note-color::before {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: currentColor;
         }
 
         .note-tags {
-            margin-bottom: 12px;
+            background: #f1f5f9;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .actions {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
         }
 
         #close-btn {
-            margin-top: 18px;
-            padding: 8px 24px;
-            border-radius: 8px;
+            padding: 0.75rem 2rem;
+            border-radius: var(--border-radius);
             border: none;
-            background: #5b9df9;
+            background: var(--primary-color);
             color: #fff;
-            font-size: 16px;
+            font-size: 1rem;
             cursor: pointer;
+            transition: all var(--transition-speed);
+            font-weight: 500;
+        }
+
+        #close-btn:hover {
+            background: #2171c7;
+            transform: translateY(-1px);
+        }
+
+        #close-btn:active {
+            transform: translateY(0);
         }
 
         #close-btn:disabled {
-            background: #eee;
-            color: #888;
+            background: #e9ecef;
+            color: #adb5bd;
             cursor: not-allowed;
+            transform: none;
         }
 
         .close-tip {
-            color: #888;
-            font-size: 13px;
-            margin-top: 6px;
+            color: var(--secondary-text);
+            font-size: 0.875rem;
+            text-align: center;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+                margin: 0;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .note-content {
+                padding: 1rem;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #1a1a1a;
+            }
+
+            .container {
+                background: #242424;
+            }
+
+            .note-content {
+                background: #2a2a2a;
+                border-color: #333;
+            }
+
+            .note-content:hover {
+                background: #2d2d2d;
+            }
+
+            h2 {
+                border-bottom-color: #333;
+            }
+
+            :root {
+                --text-color: #e1e1e1;
+                --secondary-text: #a0a0a0;
+            }
+
+            .note-tags {
+                background: #2a2a2a;
+            }
         }
     </style>
 </head>
@@ -68,7 +221,9 @@
     <div class="container">
         <h2>笔记详情</h2>
         <div id="note-detail"></div>
-        <button id="close-btn">关闭</button>
+        <div class="actions">
+            <button id="close-btn">关闭</button>
+        </div>
         <div class="close-tip">如无法自动关闭，请手动关闭本标签页</div>
     </div>
     <script src="note_detail.js"></script>
