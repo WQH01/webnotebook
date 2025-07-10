@@ -48,9 +48,13 @@ document.getElementById('login-btn').addEventListener('click', async () => {
             localStorage.setItem('webnotebook_token', data.token);
             chrome.storage.local.set({ webnotebook_token: data.token });
 
+            // 清除登录和注册卡片
             document.getElementById('login-card').classList.add('hidden');
             document.getElementById('register-card').classList.add('hidden');
+
+            // 显示笔记卡片和按钮
             document.getElementById('notes-card').classList.remove('hidden');
+            document.getElementById('admin-btn').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
 
             fetchNotes();
@@ -143,10 +147,18 @@ document.getElementById('logout-btn').addEventListener('click', () => {
     localStorage.removeItem('webnotebook_token');
     chrome.storage.local.remove('webnotebook_token');
     document.getElementById('logout-btn').classList.add('hidden');
+    document.getElementById('admin-btn').classList.add('hidden');
     document.getElementById('notes-list').innerHTML = '';
     document.getElementById('notes-card').classList.add('hidden');
     document.getElementById('login-card').classList.remove('hidden');
     clearMessages();
+});
+
+// 进入管理端
+document.getElementById('admin-btn').addEventListener('click', () => {
+    const token = localStorage.getItem('webnotebook_token');
+    // 将token作为URL参数传递给管理后台
+    chrome.tabs.create({ url: `http://localhost:3000?token=${encodeURIComponent(token)}` });
 });
 
 let currentPage = 1;
@@ -276,21 +288,14 @@ document.getElementById('next-page').addEventListener('click', () => {
 });
 
 // 自动登录状态
-document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('webnotebook_token')) {
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('webnotebook_token');
+    if (token) {
         document.getElementById('login-card').classList.add('hidden');
         document.getElementById('register-card').classList.add('hidden');
         document.getElementById('notes-card').classList.remove('hidden');
         document.getElementById('logout-btn').classList.remove('hidden');
+        document.getElementById('admin-btn').classList.remove('hidden');
         fetchNotes();
-    } else {
-        document.getElementById('notes-card').classList.add('hidden');
-        document.getElementById('logout-btn').classList.add('hidden');
     }
-
-    // 初始化分页
-    document.getElementById('current-page').textContent = currentPage;
-    document.getElementById('total-pages').textContent = totalPages;
-    document.getElementById('prev-page').disabled = currentPage <= 1;
-    document.getElementById('next-page').disabled = currentPage >= totalPages;
 });

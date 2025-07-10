@@ -175,6 +175,17 @@ body {
     color: white;
 }
 
+.btn-outline-primary {
+    border-color: var(--primary);
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary);
+    color: white;
+}
+
 .switch-link {
     display: block;
     text-align: center;
@@ -370,13 +381,13 @@ body {
 }
 
 .page-info {
-    font-size: 14px;
     color: var(--text-medium);
-    font-weight: 500;
+    font-size: 14px;
+    margin: 0 12px;
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .status-indicator {
@@ -402,33 +413,41 @@ body {
 }
 
 @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 @media (max-width: 480px) {
     body {
         padding: 15px;
     }
-    
+
     .app-container {
         max-width: 100%;
     }
-    
+
     .app-header h1 {
         font-size: 24px;
     }
-    
+
     .card {
         padding: 24px 18px;
     }
-    
+
     .pagination-bar {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .pagination-btn {
         width: 100%;
         min-width: auto;

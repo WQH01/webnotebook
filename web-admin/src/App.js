@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotesList from './pages/NotesList';
 
 export default function App() {
     const [token, setToken] = useState(localStorage.getItem('webnotebook_token') || '');
+
+    useEffect(() => {
+        // 从URL参数中获取token
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+
+        if (urlToken) {
+            setToken(urlToken);
+            localStorage.setItem('webnotebook_token', urlToken);
+            // 清除URL中的token参数
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, []);
 
     const handleLogin = t => {
         setToken(t);
