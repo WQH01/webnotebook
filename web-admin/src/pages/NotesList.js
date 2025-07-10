@@ -7,18 +7,44 @@ export default function NotesList({ token }) {
     const [selected, setSelected] = useState([]);
     const [editId, setEditId] = useState(null);
     const [editData, setEditData] = useState({ content: '', color: '', tags: '' });
-    const [searchParams, setSearchParams] = useState({}); // 可根据实际筛选条件扩展
+    const [searchParams, setSearchParams] = useState({});
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalNotes: 0,
+        limit: 10
+    });
+
+    const loadNotes = async (page = 1, search = '') => {
+        try {
+            const query = `page=${page}&limit=${pagination.limit}${search ? '&' + search : ''}`;
+            const response = await fetchNotes(token, query);
+
+            // 处理不同的响应格式
+            const data = response.data || response;
+            const total = response.total || (Array.isArray(response) ? response.length : 0);
+
+            setNotes(Array.isArray(data) ? data : []);
+            setPagination({
+                ...pagination,
+                currentPage: page,
+                totalPages: Math.ceil(total / pagination.limit),
+                totalNotes: total
+            });
+        } catch (error) {
+            console.error('加载笔记失败:', error);
+            setMsg('获取失败');
+        }
+    };
 
     useEffect(() => {
-        fetchNotes(token)
-            .then(res => setNotes(res.data || res))
-            .catch(() => setMsg('获取失败'));
+        loadNotes(1);
     }, [token]);
 
     const handleDelete = async id => {
         if (!window.confirm('确定删除？')) return;
         await deleteNote(token, id);
-        setNotes(notes.filter(n => n.id !== id));
+        loadNotes(pagination.currentPage);
     };
 
     const handleSelect = id => {
@@ -28,8 +54,8 @@ export default function NotesList({ token }) {
     const handleBatchDelete = async () => {
         if (!window.confirm('确定批量删除？')) return;
         await batchDeleteNotes(token, selected);
-        setNotes(notes.filter(n => !selected.includes(n.id)));
         setSelected([]);
+        loadNotes(1);
     };
 
     const startEdit = note => {
@@ -43,42 +69,30 @@ export default function NotesList({ token }) {
 
     const handleEditSave = async () => {
         await editNote(token, editId, editData);
-        setNotes(notes.map(n => n.id === editId ? { ...n, ...editData } : n));
+        loadNotes(pagination.currentPage);
         setEditId(null);
     };
 
-    function handleExport() {
-        exportNotes(searchParams).then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'notes.xlsx';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        }).catch(e => {
-            alert('导出失败: ' + e.message);
-        });
-    }
-
-    // 新增：处理搜索
-    function handleSearch(e) {
+    const handleSearch = e => {
         e.preventDefault();
         const input = e.target.elements.search.value.trim();
         const query = input ? `keyword=${encodeURIComponent(input)}` : '';
-        fetchNotes(token, query)
-            .then(res => setNotes(res.data || res))
-            .catch(() => setMsg('获取失败'));
-    }
+        loadNotes(1, query);
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.totalPages) {
+            loadNotes(newPage);
+        }
+    };
 
     return (
         <div className="container mt-4">
-            <h3 style={{ fontWeight: 600, letterSpacing: 1 }}>我的笔记</h3>
+            <h3 style={{ fontWeight: 600, letterSpacing: 1 }}>我的笔记 ({pagination.totalNotes})</h3>
             {msg && <div className="text-danger">{msg}</div>}
             <div className="d-flex mb-3">
                 <button className="btn btn-danger me-2" style={{ borderRadius: 8, padding: '8px 24px', fontWeight: 500 }} disabled={!selected.length} onClick={handleBatchDelete}>批量删除</button>
-                <button className="btn btn-success" style={{ borderRadius: 8, padding: '8px 24px', fontWeight: 500 }} onClick={handleExport}>导出</button>
+                <button className="btn btn-success" style={{ borderRadius: 8, padding: '8px 24px', fontWeight: 500 }} onClick={() => exportNotes(searchParams)}>导出</button>
             </div>
             <form className="input-group mb-3" onSubmit={handleSearch} style={{ maxWidth: 400 }}>
                 <input name="search" type="text" className="form-control" placeholder="搜索内容、标签或网址" />
@@ -131,6 +145,29 @@ export default function NotesList({ token }) {
                     </div>
                 ))}
             </div>
+
+            {/* 分页控件 */}
+            {pagination.totalPages > 1 && (
+                <div className="d-flex justify-content-center align-items-center mt-4 mb-4">
+                    <button
+                        className="btn btn-outline-primary me-2"
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage === 1}
+                    >
+                        上一页
+                    </button>
+                    <span className="mx-3">
+                        第 {pagination.currentPage} 页，共 {pagination.totalPages} 页
+                    </span>
+                    <button
+                        className="btn btn-outline-primary ms-2"
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage === pagination.totalPages}
+                    >
+                        下一页
+                    </button>
+                </div>
+            )}
         </div>
     );
 } 

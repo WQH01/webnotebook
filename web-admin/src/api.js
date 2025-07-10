@@ -21,11 +21,10 @@ export async function register(username, email, password) {
 }
 
 export async function fetchNotes(token, params = '') {
-    let url;
+    // 如果有参数，使用search接口，否则使用普通获取接口
+    let url = `${API}/notes${params ? '/search' : ''}`;
     if (params && params.trim()) {
-        url = `${API}/notes/search?${params}`;
-    } else {
-        url = `${API}/notes`;
+        url = `${url}?${params}`;
     }
     const res = await fetch(url, {
         headers: { 'Authorization': `Bearer ${token}` }
