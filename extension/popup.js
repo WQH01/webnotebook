@@ -225,14 +225,19 @@ async function fetchNotes(page = 1, searchInput = '') {
                         <div class="note-content">${n.content.length > 50 ? n.content.slice(0, 50) + '...' : n.content}</div>
                         <div class="note-meta">
                             <span>${new Date(n.createdAt).toLocaleDateString()}</span>
-                            <a href="${n.url}" target="_blank">查看来源</a>
+                            <a href="${n.url}" class="source-link" target="_blank">查看来源</a>
                         </div>
                     </div>
                 `).join('');
                 document.getElementById('notes-list').innerHTML = list;
                 document.getElementById('pagination-container').classList.remove('hidden');
                 document.querySelectorAll('.note-item').forEach(item => {
-                    item.addEventListener('click', () => {
+                    item.addEventListener('click', (e) => {
+                        // 如果点击的是来源链接，不打开笔记详情
+                        if (e.target.classList.contains('source-link')) {
+                            e.stopPropagation(); // 阻止事件冒泡
+                            return;
+                        }
                         const id = item.getAttribute('data-id');
                         chrome.tabs.create({ url: `note_detail.html?id=${id}` });
                     });
