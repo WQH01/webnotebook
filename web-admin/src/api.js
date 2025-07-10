@@ -1,0 +1,81 @@
+const API = 'http://localhost:3001/api';
+
+export async function login(username, password) {
+    const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+    if (!res.ok) throw new Error('登录失败');
+    return res.json();
+}
+
+export async function register(username, email, password) {
+    const res = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+    });
+    if (!res.ok) throw new Error('注册失败');
+    return res.json();
+}
+
+export async function fetchNotes(token, params = '') {
+    let url;
+    if (params && params.trim()) {
+        url = `${API}/notes/search?${params}`;
+    } else {
+        url = `${API}/notes`;
+    }
+    const res = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('获取笔记失败');
+    return res.json();
+}
+
+export async function deleteNote(token, id) {
+    const res = await fetch(`${API}/notes/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('删除失败');
+    return res.json();
+}
+
+export async function batchDeleteNotes(token, ids) {
+    const res = await fetch(`${API}/notes/batch-delete`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids })
+    });
+    if (!res.ok) throw new Error('批量删除失败');
+    return res.json();
+}
+
+export async function editNote(token, id, data) {
+    const res = await fetch(`${API}/notes/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('编辑失败');
+    return res.json();
+}
+
+export async function exportNotes(params = {}) {
+    const token = localStorage.getItem('webnotebook_token');
+    const query = Object.entries(params).map(([k, v]) => v ? `${encodeURIComponent(k)}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&');
+    const url = `http://localhost:3001/api/notes/export${query ? '?' + query : ''}`;
+    const res = await fetch(url, {
+        headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+    });
+    if (!res.ok) throw new Error('导出失败');
+    return await res.blob();
+} 

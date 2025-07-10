@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "网页笔记本",
+    "version": "1.0",
+    "description": "保存网页选中文本为笔记",
+    "permissions": [
+        "contextMenus",
+        "storage",
+        "activeTab",
+        "scripting"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "host_permissions": [
+        "http://localhost:3001/*"
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "note_detail.html",
+                "note_detail.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <title>笔记详情</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px #0002;
+            padding: 32px;
+        }
+
+        .note-content {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .note-label {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .note-color {
+            font-weight: bold;
+        }
+
+        .note-tags {
+            margin-bottom: 12px;
+        }
+
+        #close-btn {
+            margin-top: 18px;
+            padding: 8px 24px;
+            border-radius: 8px;
+            border: none;
+            background: #5b9df9;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #close-btn:disabled {
+            background: #eee;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .close-tip {
+            color: #888;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>笔记详情</h2>
+        <div id="note-detail"></div>
+        <button id="close-btn">关闭</button>
+        <div class="close-tip">如无法自动关闭，请手动关闭本标签页</div>
+    </div>
+    <script src="note_detail.js"></script>
+</body>
+
+</html>

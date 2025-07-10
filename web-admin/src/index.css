@@ -1,0 +1,94 @@
+.container {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px #b6c6e644, 0 2px 8px #007bff22;
+    padding-top: 32px !important;
+    padding-bottom: 32px !important;
+}
+
+.row {
+    gap: 32px 0 !important;
+}
+
+.card,
+.note-card {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px #b6c6e633, 0 1.5px 4px #0001;
+    padding: 28px 22px 18px 22px !important;
+    margin-bottom: 32px;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.card:focus-within,
+.card:hover,
+.note-card:hover {
+    box-shadow: 0 12px 36px #7ba7e633, 0 4px 16px #007bff22;
+    transform: translateY(-2px) scale(1.01);
+}
+
+.btn,
+.btn-sm {
+    border-radius: 12px !important;
+    font-size: 16px;
+    padding: 10px 0;
+    font-weight: 500;
+    min-width: 80px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+}
+
+.btn:last-child,
+.btn-sm:last-child {
+    margin-right: 0;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #5b9df9 0%, #3b7ddd 100%) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-danger {
+    background: linear-gradient(90deg, #ff5b6b 0%, #ff3b3b 100%) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-success {
+    background: linear-gradient(90deg, #4fd69c 0%, #38b87c 100%) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-secondary {
+    background: #e0e6ed !important;
+    color: #333 !important;
+    border: none !important;
+}
+
+@media (max-width: 900px) {
+    .container {
+        border-radius: 12px;
+        padding: 12px !important;
+    }
+
+    .card,
+    .note-card {
+        border-radius: 12px;
+        padding: 16px 8px 12px 8px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        border-radius: 8px;
+        padding: 4px !important;
+    }
+
+    .card,
+    .note-card {
+        border-radius: 8px;
+        padding: 8px 2px 6px 2px !important;
+    }
+}
