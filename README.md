@@ -1,95 +1,182 @@
-# 网页笔记本（Web Notebook）
+# 网页笔记本
 
-一个支持网页划词保存、同步、管理和高亮的全平台笔记系统，包含 Node.js 后端、React Web 管理端和 Chrome 浏览器扩展。
+一个现代化的网页笔记系统，支持网页划词保存、实时同步、智能管理和自动高亮功能。本项目采用全栈开发方案，包含 Node.js 后端服务、React Web 管理端和 Chrome 浏览器扩展。
+
+## 技术栈
+
+### 后端 (Backend)
+- **框架**: Node.js + Express.js
+- **数据库**: MySQL
+- **认证**: JWT (JSON Web Token)
+- **其他**: 
+  - bcryptjs (密码加密)
+  - ExcelJS (Excel导出)
+  - CORS支持
+  - 环境变量配置
+
+### Web管理端 (Web Admin)
+- **框架**: React 18
+- **路由**: React Router v6
+- **UI**: Bootstrap 5 + Font Awesome
+- **状态管理**: React Hooks
+- **样式**: 自定义CSS + 响应式设计
+
+### 浏览器扩展 (Chrome Extension)
+- **类型**: Chrome Extension Manifest V3
+- **特性**: 
+  - 内容脚本注入
+  - 上下文菜单集成
+  - 本地存储
+  - 跨域通信
 
 ---
 
-## 目录结构
+## 系统架构
 
+```mermaid
+graph TD
+    A[Chrome Extension] -->|API 请求| B[Backend Server]
+    C[Web Admin] -->|API 请求| B
+    B -->|数据存储| D[MySQL Database]
+    A -->|本地存储| E[Chrome Storage]
+    B -->|认证| F[JWT Auth]
 ```
-webnotebook/
-  backend/         # Node.js + MySQL 后端服务
-  web-admin/       # React Web 管理端
-  extension/       # Chrome 浏览器扩展
-```
+
+## 功能特性
+
+### 核心功能
+- 🔍 **智能划词**：任意网页文本选择与一键保存
+- 🔄 **实时同步**：扩展端与管理端数据实时同步
+- 🎨 **智能高亮**：自定义颜色、自动恢复、悬停提示
+- 📝 **全文检索**：支持内容、标签、URL模糊搜索
+- 📊 **批量操作**：支持批量删除、Excel导出
+- 🔒 **安全认证**：完整的用户认证和鉴权系统
+
+### 技术特性
+- ⚡ **性能优化**：异步加载、DOM监听、缓存管理
+- 🛡️ **安全防护**：密码加密、Token验证、CORS配置
+- 📱 **响应式设计**：支持各种设备屏幕尺寸
+- 🔌 **可扩展性**：模块化设计、API版本控制
 
 ---
 
-## 安装与启动
+## 快速开始
 
-### 1. 后端服务（backend）
+### 环境要求
+- Node.js >= 14.0.0
+- MySQL >= 5.7
+- Chrome浏览器 >= 88
+
+### 1. 后端服务
 ```bash
 cd backend
 npm install
+# 配置环境变量
+cp .env.example .env
+# 编辑 .env 文件配置数据库信息
 npm start
 ```
-- 默认监听 http://localhost:3001
-- 数据库配置见 `backend/.env`，需提前准备好 MySQL 数据库。
 
-### 2. Web 管理端（web-admin）
+环境变量配置示例：
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=your_password
+DB_NAME=webnotebook
+JWT_SECRET=your_secret_key
+PORT=3001
+```
+
+### 2. Web管理端
 ```bash
 cd web-admin
 npm install
 npm start
 ```
-- 默认访问 http://localhost:3000
-- 支持注册、登录、笔记管理、批量删除、导出、全字段模糊搜索。
 
-### 3. Chrome 扩展（extension）
-1. 打开 Chrome，访问 `chrome://extensions/`
+### 3. Chrome扩展
+1. 打开Chrome扩展管理页面 `chrome://extensions/`
 2. 开启"开发者模式"
-3. 点击"加载已解压的扩展程序"，选择 `extension/` 目录
+3. 点击"加载已解压的扩展程序"
+4. 选择 `extension/` 目录
 
 ---
 
-## 主要功能
+## API文档
 
-- **网页划词保存**：在任意网页选中文本，保存为笔记并高亮下划线。
-- **笔记同步**：扩展端与 Web 管理端数据实时同步。
-- **全字段搜索**：支持内容、标签、网址模糊搜索，无需前缀。
-- **批量管理**：支持批量删除、导出 Excel。
-- **高亮恢复**：网页刷新或内容异步加载后，自动恢复下划线高亮。
-- **详情查看**：点击列表可查看笔记详情。
-- **美观提示**：保存成功、悬停下划线等均有美观提示浮层。
+### 认证接口
+- POST `/api/auth/register` - 用户注册
+- POST `/api/auth/login` - 用户登录
+- GET `/api/auth/me` - 获取当前用户信息
+
+### 笔记接口
+- GET `/api/notes` - 获取笔记列表
+- POST `/api/notes` - 创建新笔记
+- PUT `/api/notes/:id` - 更新笔记
+- DELETE `/api/notes/:id` - 删除笔记
+- POST `/api/notes/batch-delete` - 批量删除
+- GET `/api/notes/export` - 导出笔记
 
 ---
 
-## 使用说明
+## 开发指南
 
-### Web 管理端
-- 访问 http://localhost:3000
-- 注册/登录后可管理所有笔记，支持搜索、编辑、删除、导出。
-- 搜索框直接输入关键词即可全字段模糊搜索。
+### 代码规范
+- 使用ESLint进行代码检查
+- 遵循React Hooks最佳实践
+- 使用async/await处理异步操作
+- 保持一致的错误处理方式
 
-### Chrome 扩展
-- 在网页选中文本，右键或点击扩展图标保存为笔记。
-- 扩展弹窗可查看、搜索、分页管理笔记。
-- 下划线高亮内容，鼠标悬停显示"已保存"，点击可查看详情。
-- 支持全字段模糊搜索。
+### 安全考虑
+- 所有API请求需要JWT认证
+- 密码加密存储
+- 防止XSS和CSRF攻击
+- 限制API请求频率
+
+### 扩展开发
+- 遵循Chrome Extension最佳实践
+- 使用content scripts注入页面
+- 正确处理跨域请求
+- 实现优雅的错误处理
 
 ---
 
 ## 常见问题
 
-1. **刷新后下划线消失？**
-   - 已集成自动恢复和 DOM 监听，无论页面如何变化，下划线都会自动恢复。
+### 1. 高亮显示问题
+Q: 页面刷新后高亮消失？  
+A: 系统已集成自动恢复机制，通过DOM监听确保高亮持久化。
 
-2. **详情页打不开/ERR_BLOCKED_BY_CLIENT？**
-   - 请关闭广告拦截插件或将扩展加入白名单。
+### 2. 认证问题
+Q: Token过期处理？  
+A: 系统会自动处理过期Token，引导用户重新登录。
 
-3. **搜索无效？**
-   - 已支持全字段模糊搜索，确保后端服务正常运行。
-
----
-
-## 开发与维护建议
-
-- 所有前后端接口均有鉴权，需登录后操作。
-- 数据库表结构需与 models 代码一致。
-- 扩展 manifest.json 已声明 web_accessible_resources，确保详情页可访问。
+### 3. 性能问题
+Q: 大量笔记加载缓慢？  
+A: 已实现分页加载和懒加载优化。
 
 ---
 
-## License
+## 贡献指南
 
-MIT 
+1. Fork 项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 提交Pull Request
+
+---
+
+## 开源协议
+
+MIT License
+
+---
+
+## 更新日志
+
+### v1.0.0 (2024-03)
+- 初始版本发布
+- 完整的笔记管理功能
+- Chrome扩展支持
+- Web管理界面 
