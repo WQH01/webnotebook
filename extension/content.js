@@ -24,9 +24,15 @@ function getPageKey() {
     return window.location.origin + window.location.pathname;
 }
 
+// 检查是否为后台管理页面
+function isAdminPage() {
+    const url = window.location.href;
+    return url.includes('localhost:3000') || url.includes('localhost:3001') || url.includes('/admin');
+}
+
 // 优化：分批高亮，避免阻塞主线程
 function underlineTextBatch(text, color, noteId, tags) {
-    if (!text) return;
+    if (!text || isAdminPage()) return; // 在后台管理页面不执行高亮
     // 先移除已有的下划线span，避免重复高亮和重复事件
     document.querySelectorAll('span[data-note-id="' + noteId + '"]').forEach(s => {
         s.replaceWith(document.createTextNode(s.textContent));
@@ -92,24 +98,45 @@ function underlineTextBatch(text, color, noteId, tags) {
 
 // 恢复标注
 function restoreHighlights() {
+    if (isAdminPage()) return; // 在后台管理页面不执行恢复
     const url = getPageKey();
-    chrome.storage.local.get([url], (result) => {
-        if (result[url]) {
-            result[url].forEach(note => {
-                underlineTextBatch(note.content, note.color, note.id, note.tags);
-            });
-        }
-    });
+    try {
+        chrome.storage.local.get([url], (result) => {
+            if (chrome.runtime.lastError) {
+                console.error('Storage error:', chrome.runtime.lastError);
+                return;
+            }
+            if (result[url]) {
+                result[url].forEach(note => {
+                    underlineTextBatch(note.content, note.color, note.id, note.tags);
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Failed to restore highlights:', error);
+    }
 }
 
 // 保存标注到 storage
 function saveHighlightToStorage(note) {
     const url = getPageKey();
-    chrome.storage.local.get([url], (result) => {
-        const notes = result[url] || [];
-        notes.push(note);
-        chrome.storage.local.set({ [url]: notes });
-    });
+    try {
+        chrome.storage.local.get([url], (result) => {
+            if (chrome.runtime.lastError) {
+                console.error('Storage error:', chrome.runtime.lastError);
+                return;
+            }
+            const notes = result[url] || [];
+            notes.push(note);
+            chrome.storage.local.set({ [url]: notes }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error('Storage save error:', chrome.runtime.lastError);
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Failed to save highlight:', error);
+    }
 }
 
 function createDialog(selectedText, pageUrl) {
@@ -207,6 +234,11 @@ function showNoteDetail(content, color, tags) {
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (!isExtensionContextValid()) {
+        console.warn('Extension context is invalid, ignoring message');
+        return;
+    }
+
     if (msg.action === 'showNoteDialog') {
         createDialog(msg.selection, msg.pageUrl);
     }
@@ -230,18 +262,40 @@ async function syncNotesFromServer(token) {
     }
 }
 
-// 新增：安全恢复下划线（只在已登录时）
+// 新增：检查扩展上下文是否有效
+function isExtensionContextValid() {
+    try {
+        // 尝试访问chrome.runtime.id，如果扩展上下文无效会抛出错误
+        return Boolean(chrome.runtime && chrome.runtime.id);
+    } catch (e) {
+        return false;
+    }
+}
+
+// 修改 safeRestoreHighlights 函数
 function safeRestoreHighlights() {
-    chrome.storage.local.get('webnotebook_token', async (result) => {
-        const token = result.webnotebook_token;
-        if (!token) {
-            // 未登录，移除所有下划线
-            removeAllNoteUnderlines();
-            return;
-        }
-        await syncNotesFromServer(token);
-        restoreHighlights();
-    });
+    if (!isExtensionContextValid()) {
+        console.warn('Extension context is invalid');
+        return;
+    }
+
+    try {
+        chrome.storage.local.get('webnotebook_token', async (result) => {
+            if (chrome.runtime.lastError) {
+                console.error('Token retrieval error:', chrome.runtime.lastError);
+                return;
+            }
+            const token = result.webnotebook_token;
+            if (!token) {
+                removeAllNoteUnderlines();
+                return;
+            }
+            await syncNotesFromServer(token);
+            restoreHighlights();
+        });
+    } catch (error) {
+        console.error('Failed to safely restore highlights:', error);
+    }
 }
 
 // 新增：移除所有下划线

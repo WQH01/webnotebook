@@ -27,8 +27,13 @@ async function searchNotes(userId, { keyword, url, start, end, tags, color, id }
     let sql = 'SELECT * FROM notes WHERE userId = ?';
     const params = [userId];
     if (id) {
-        sql += ' AND id = ?';
-        params.push(id);
+        if (Array.isArray(id)) {
+            sql += ` AND id IN (${id.map(() => '?').join(',')})`;
+            params.push(...id);
+        } else {
+            sql += ' AND id = ?';
+            params.push(id);
+        }
     }
     if (keyword) {
         sql += ' AND (content LIKE ? OR tags LIKE ? OR url LIKE ?)';

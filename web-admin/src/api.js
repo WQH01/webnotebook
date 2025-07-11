@@ -68,13 +68,18 @@ export async function editNote(token, id, data) {
     return res.json();
 }
 
-export async function exportNotes(params = {}) {
-    const token = localStorage.getItem('webnotebook_token');
-    const query = Object.entries(params).map(([k, v]) => v ? `${encodeURIComponent(k)}=${encodeURIComponent(v)}` : '').filter(Boolean).join('&');
-    const url = `http://localhost:3001/api/notes/export${query ? '?' + query : ''}`;
+export async function exportNotes(token, selectedIds = []) {
+    let url = `${API}/notes/export`;
+    // 确保selectedIds是数组且有值
+    if (Array.isArray(selectedIds) && selectedIds.length > 0) {
+        url += `?ids=${selectedIds.join(',')}`;
+    }
     const res = await fetch(url, {
-        headers: { 'Authorization': token ? `Bearer ${token}` : '' }
+        headers: { 'Authorization': `Bearer ${token}` }
     });
-    if (!res.ok) throw new Error('导出失败');
+    if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || '导出失败');
+    }
     return await res.blob();
 } 

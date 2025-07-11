@@ -52,22 +52,75 @@ exports.editNote = async (req, res) => {
 };
 
 exports.exportNotes = async (req, res) => {
-    const { keyword, url, start, end, tags, color, id } = req.query;
-    const notes = await Note.searchNotes(req.user.id, { keyword, url, start, end, tags, color, id });
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Notes');
-    sheet.columns = [
-        { header: 'ID', key: 'id', width: 8 },
-        { header: '内容', key: 'content', width: 50 },
-        { header: '来源URL', key: 'url', width: 30 },
-        { header: '颜色', key: 'color', width: 10 },
-        { header: '标签', key: 'tags', width: 20 },
-        { header: '创建时间', key: 'createdAt', width: 20 },
-        { header: '更新时间', key: 'updatedAt', width: 20 }
-    ];
-    notes.forEach(note => sheet.addRow(note));
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=notes.xlsx');
-    await workbook.xlsx.write(res);
-    res.end();
+    let notes;
+    const { ids } = req.query;
+
+    try {
+        if (ids) {
+            // 导出选中的笔记
+            const selectedIds = ids.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+            if (selectedIds.length === 0) {
+                throw new Error('无效的笔记ID');
+            }
+            notes = await Note.searchNotes(req.user.id, { id: selectedIds });
+            if (notes.length === 0) {
+                throw new Error('未找到指定的笔记');
+            }
+            res.setHeader('Content-Disposition', `attachment; filename=selected_notes_${selectedIds.length}.xlsx`);
+        } else {
+            // 导出所有笔记
+            notes = await Note.searchNotes(req.user.id, {});
+            if (notes.length === 0) {
+                throw new Error('没有可导出的笔记');
+            }
+            res.setHeader('Content-Disposition', 'attachment; filename=all_notes.xlsx');
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Notes');
+
+        // 设置列宽和标题
+        sheet.columns = [
+            { header: 'ID', key: 'id', width: 8 },
+            { header: '内容', key: 'content', width: 50 },
+            { header: '来源URL', key: 'url', width: 30 },
+            { header: '颜色', key: 'color', width: 10 },
+            { header: '标签', key: 'tags', width: 20 },
+            { header: '创建时间', key: 'createdAt', width: 20 },
+            { header: '更新时间', key: 'updatedAt', width: 20 }
+        ];
+
+        // 添加数据并设置样式
+        notes.forEach(note => {
+            const row = sheet.addRow(note);
+            row.eachCell(cell => {
+                cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
+        });
+
+        // 设置表头样式
+        const headerRow = sheet.getRow(1);
+        headerRow.eachCell(cell => {
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE0E0E0' }
+            };
+            cell.font = { bold: true };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        await workbook.xlsx.write(res);
+        res.end();
+    } catch (error) {
+        console.error('导出笔记失败:', error);
+        res.status(400).json({ message: error.message || '导出失败' });
+    }
 }; 
