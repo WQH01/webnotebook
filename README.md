@@ -74,7 +74,13 @@ graph TD
 - MySQL >= 5.7
 - Chrome浏览器 >= 88
 
-### 1. 后端服务
+### 1. 主项目依赖安装
+```bash
+# 在项目根目录下运行
+npm install
+```
+
+### 2. 后端服务
 ```bash
 cd backend
 npm install
@@ -94,14 +100,14 @@ JWT_SECRET=your_secret_key
 PORT=3001
 ```
 
-### 2. Web管理端
+### 3. Web管理端
 ```bash
 cd web-admin
 npm install
 npm start
 ```
 
-### 3. Chrome扩展
+### 4. Chrome扩展
 1. 打开Chrome扩展管理页面 `chrome://extensions/`
 2. 开启"开发者模式"
 3. 点击"加载已解压的扩展程序"

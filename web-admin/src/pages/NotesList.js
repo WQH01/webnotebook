@@ -109,6 +109,7 @@ export default function NotesList({ token }) {
         e.preventDefault();
         const input = e.target.elements.search.value.trim();
         setSearchKeyword(input); // 保存搜索关键词
+        setSelected([]); // 重置勾选状态
         const query = input ? `keyword=${encodeURIComponent(input)}` : '';
         loadNotes(1, query);
     };
