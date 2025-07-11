@@ -68,12 +68,26 @@ export async function editNote(token, id, data) {
     return res.json();
 }
 
-export async function exportNotes(token, selectedIds = []) {
+export async function exportNotes(token, selectedIds = [], searchParams = null) {
     let url = `${API}/notes/export`;
-    // 确保selectedIds是数组且有值
+    const params = new URLSearchParams();
+
+    // 如果有选中的ID，添加到参数中
     if (Array.isArray(selectedIds) && selectedIds.length > 0) {
-        url += `?ids=${selectedIds.join(',')}`;
+        params.append('ids', selectedIds.join(','));
     }
+
+    // 如果有搜索参数，添加到参数中
+    if (searchParams && searchParams.keyword) {
+        params.append('keyword', searchParams.keyword);
+    }
+
+    // 将所有参数添加到URL
+    const queryString = params.toString();
+    if (queryString) {
+        url += `?${queryString}`;
+    }
+
     const res = await fetch(url, {
         headers: { 'Authorization': `Bearer ${token}` }
     });

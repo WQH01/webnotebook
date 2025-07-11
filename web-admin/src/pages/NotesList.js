@@ -17,6 +17,7 @@ export default function NotesList({ token }) {
         totalNotes: 0,
         limit: 12
     });
+    const [searchKeyword, setSearchKeyword] = useState('');
 
     const loadNotes = async (page = 1, search = '') => {
         try {
@@ -84,11 +85,16 @@ export default function NotesList({ token }) {
     const handleExport = async () => {
         try {
             const selectedIds = selected.map(id => Number(id));
-            const blob = await exportNotes(token, selectedIds);
+            const searchParams = searchKeyword ? { keyword: searchKeyword } : null;
+            const blob = await exportNotes(token, selectedIds, searchParams);
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = selectedIds.length > 0 ? `selected_notes_${selectedIds.length}.xlsx` : 'all_notes.xlsx';
+            a.download = selectedIds.length > 0
+                ? `selected_notes_${selectedIds.length}.xlsx`
+                : searchKeyword
+                    ? `search_notes_${searchKeyword}.xlsx`
+                    : 'all_notes.xlsx';
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -102,6 +108,7 @@ export default function NotesList({ token }) {
     const handleSearch = e => {
         e.preventDefault();
         const input = e.target.elements.search.value.trim();
+        setSearchKeyword(input); // 保存搜索关键词
         const query = input ? `keyword=${encodeURIComponent(input)}` : '';
         loadNotes(1, query);
     };

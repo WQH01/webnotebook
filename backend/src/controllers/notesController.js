@@ -53,7 +53,7 @@ exports.editNote = async (req, res) => {
 
 exports.exportNotes = async (req, res) => {
     let notes;
-    const { ids } = req.query;
+    const { ids, keyword } = req.query;
 
     try {
         if (ids) {
@@ -67,6 +67,13 @@ exports.exportNotes = async (req, res) => {
                 throw new Error('未找到指定的笔记');
             }
             res.setHeader('Content-Disposition', `attachment; filename=selected_notes_${selectedIds.length}.xlsx`);
+        } else if (keyword) {
+            // 导出搜索结果
+            notes = await Note.searchNotes(req.user.id, { keyword });
+            if (notes.length === 0) {
+                throw new Error('未找到匹配的笔记');
+            }
+            res.setHeader('Content-Disposition', `attachment; filename=search_notes_${encodeURIComponent(keyword)}.xlsx`);
         } else {
             // 导出所有笔记
             notes = await Note.searchNotes(req.user.id, {});
