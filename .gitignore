@@ -1,4 +1,4 @@
-/webnotebook/node_modules
-/webnotebook/backend/node_modules
-/webnotebook/web-admin/node_modules
-/webnotebook/backend/.env
+/node_modules
+/backend/node_modules
+/web-admin/node_modules
+/backend/.env
