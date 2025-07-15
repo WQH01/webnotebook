@@ -12,7 +12,7 @@ export default function Register() {
             await register(username, email, password);
             setMsg('注册成功，请登录');
         } catch {
-            setMsg('注册失败');
+            setMsg('注册失败，用户名已存在');
         }
     };
 

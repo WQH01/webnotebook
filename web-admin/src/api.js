@@ -16,7 +16,7 @@ export async function register(username, email, password) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password })
     });
-    if (!res.ok) throw new Error('注册失败');
+    if (!res.ok) throw new Error('注册失败，用户名已存在');
     return res.json();
 }
 
